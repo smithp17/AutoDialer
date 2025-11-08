@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: autodialer
+    env: ruby
+    rootDir: autodialer
+    buildCommand: bundle install && bundle exec rake assets:precompile db:migrate
+    startCommand: bundle exec puma -C config/puma.rb
+    envVars:
+      - key: RAILS_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
