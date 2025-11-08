@@ -1,0 +1,54 @@
+<div class="container">
+  <h1 style="display:flex;justify-content:space-between;align-items:center;">
+    <span style="letter-spacing:.3px;">Blog</span>
+    <%= link_to "← Dashboard", root_path, class: "btn btn-secondary" %>
+  </h1>
+
+  <section class="grid-2" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+    <div class="card" style="padding:18px;background:#121826;border:1px solid #1e2a3f;border-radius:12px;">
+      <h2 style="margin:0 0 6px;">Generate micro posts</h2>
+      <p class="help" style="margin:6px 0 14px;color:#9fb0c9;">Enter up to 10 topics, one per line. Each post will be ~30 words.</p>
+      <%= form_with url: generate_blog_path, method: :post do |f| %>
+        <%= f.text_area :titles, rows: 10, placeholder: "Ruby enumerables\nRails caching basics\nPython list comprehensions\nSQL indexing tips\nGit rebase vs merge\nDocker for devs\nJS async/await\nREST vs GraphQL\nKubernetes basics\nCI/CD for Rails", class: "input", style: "background:#0e1421;border:1px solid #22314a;color:#e6eefb;" %>
+        <div style="display:flex;gap:10px;align-items:center;margin-top:12px;">
+          <%= f.number_field :count, value: 10, min: 1, max: 10, class: "input", style: "max-width:110px;background:#0e1421;border:1px solid #22314a;color:#e6eefb;" %>
+          <%= f.submit "Generate", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="card" style="padding:18px;background:#121826;border:1px solid #1e2a3f;border-radius:12px;">
+      <h2 style="margin:0 0 6px;">Posts</h2>
+      <ul style="list-style:none;padding:0;margin:0;">
+        <% (@posts || []).each do |p| %>
+          <% next if p[:slug].to_s.strip.empty? %>
+          <li style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e2a3f;padding:12px 0;">
+            <div>
+              <%= link_to p[:title].presence || "Untitled", blog_post_path(p[:slug]), style: "text-decoration:none;color:#e6eefb;font-weight:600;" %>
+              <span style="color:#8ea3c0;margin-left:6px;">• <%= p[:date] %></span>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <%= link_to "Open", blog_post_path(p[:slug]), class: "btn btn-secondary" %>
+              <%= button_to "Delete",
+                    delete_blog_post_path(p[:slug]),
+                    method: :delete,
+                    form: { data: { turbo_confirm: "Delete this post?" } },
+                    class: "btn btn-danger-outline" %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+      <% if (@posts || []).empty? %>
+        <p class="help" style="margin-top:10px;color:#9fb0c9;">No posts yet. Generate some on the left.</p>
+      <% end %>
+    </div>
+  </section>
+</div>
+
+<style>
+  .btn{display:inline-block;border:1px solid transparent;border-radius:10px;padding:10px 14px;font-size:14px;cursor:pointer;transition:.15s;text-decoration:none}
+  .btn-primary{background:#5a8cff;color:#fff;border-color:#5a8cff}
+  .btn-secondary{background:#22314a;color:#e6eefb;border-color:#2a3c5a}
+  .btn-danger-outline{color:#ff7b7b;border:1px solid #ff7b7b;background:transparent}
+  .input{width:100%;padding:10px 12px;border-radius:10px}
+</style>

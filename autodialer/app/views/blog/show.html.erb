@@ -1,0 +1,12 @@
+
+<div class="container">
+  <p style="display:flex;gap:10px;">
+    <%= link_to "← Back to blog", blog_path, class: "btn btn-secondary" %>
+    <%= link_to "Delete this post", delete_blog_post_path(@post[:slug]),
+          data: { turbo_method: :delete, confirm: "Delete this post?" },
+          class: "btn btn-danger-outline" %>
+  </p>
+  <div class="card" style="padding:16px;">
+    <%= raw @post[:html] %>
+  </div>
+</div>

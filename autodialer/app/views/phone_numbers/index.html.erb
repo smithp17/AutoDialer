@@ -1,0 +1,177 @@
+<div class="container">
+  <header class="header">
+    <h1>Autodialer</h1>
+    <p class="subtitle">Bulk calls with AI voice and natural‑language prompt</p>
+  </header>
+
+  <% if notice %><div class="alert alert-success"><%= notice %></div><% end %>
+  <% if alert %><div class="alert alert-danger"><%= alert %></div><% end %>
+
+  <section class="cards">
+    <div class="card kpi">
+      <div class="kpi-value"><%= @statistics[:total] %></div>
+      <div class="kpi-label">Total</div>
+    </div>
+    <div class="card kpi">
+      <div class="kpi-value success"><%= @statistics[:completed] %></div>
+      <div class="kpi-label">Completed</div>
+    </div>
+    <div class="card kpi">
+      <div class="kpi-value danger"><%= @statistics[:failed] %></div>
+      <div class="kpi-label">Failed</div>
+    </div>
+    <div class="card kpi">
+      <div class="kpi-value warning"><%= @statistics[:pending] %></div>
+      <div class="kpi-label">Pending</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>AI Prompt</h2>
+    <p class="help">Examples: “make a call to +91 98765 43210”, “call 9876543210 say Your OTP is 4321”.</p>
+    <%= form_with url: ai_prompt_phone_numbers_path, method: :post, class: "form-grid" do |f| %>
+      <%= f.text_field :prompt, placeholder: "Type your command…", class: "input" %>
+      <%= f.submit "Run", class: "btn btn-primary" %>
+    <% end %>
+  </section>
+
+  <section class="grid-2">
+    <div class="card">
+      <h2>Add Phone Numbers</h2>
+      <p class="help">One per line or comma-separated. Max 100.</p>
+      <%= form_with url: bulk_upload_phone_numbers_path, method: :post do |f| %>
+        <%= f.text_area :numbers_text, placeholder: "+919876543210\n9876543210", rows: 6, class: "input" %>
+        <%= f.submit "Upload Numbers", class: "btn btn-secondary" %>
+      <% end %>
+    </div>
+
+    <div class="card">
+      <h2>Make Calls</h2>
+      <p class="help">Enter the message to speak on the call, then start a batch.</p>
+      <%= form_with url: call_all_phone_numbers_path, method: :post do |f| %>
+        <%= f.text_area :message, placeholder: "This is a test call from Autodialer. Thank you.", rows: 3, class: "input" %>
+        <%= f.submit "Call All Pending", class: "btn btn-success", data: { confirm: "Call all pending numbers?" } %>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Numbers</h2>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Called At</th>
+            <th>Duration</th>
+            <th class="right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @phone_numbers.each do |phone| %>
+            <tr>
+              <td><%= phone.number %></td>
+              <td><span class="badge <%= "badge-#{phone.status}" %>"><%= phone.status&.titleize %></span></td>
+              <td><%= phone.called_at&.strftime("%Y-%m-%d %H:%M") || "—" %></td>
+              <td><%= phone.duration || "—" %></td>
+              <td class="right actions">
+                <%= button_to "Call", call_now_phone_number_path(phone), method: :post, class: "btn btn-sm btn-primary" %>
+                <%= link_to "Delete", phone, method: :delete, data: { confirm: "Delete this number?" }, class: "btn btn-sm btn-danger-outline" %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div class="container" style="max-width:900px;margin:24px auto;padding:0 16px;">
+  <h1>LinkedIn Scraper</h1>
+  <p class="muted">Runs your local Python script and saves JSON to tmp/scrapes/scraped_profiles.json.</p>
+
+  <% if notice %><div class="alert alert-success"><%= notice %></div><% end %>
+  <% if alert %><div class="alert alert-danger"><%= alert %></div><% end %>
+
+  <div class="card" style="padding:16px;border:1px solid #ddd;border-radius:10px;margin:12px 0;">
+    <%= button_to "Scrape now", scrape_path, method: :post, class: "btn btn-primary", data: { confirm: "Start scraping now?" } %>
+    <div style="margin-top:12px;">
+      <%= link_to "Download JSON", download_scrape_path, class: "btn btn-secondary" %>
+    </div>
+  </div>
+
+  <% if flash[:log_file].present? && File.exist?(flash[:log_file]) %>
+    <div class="card" style="padding:16px;border:1px solid #ddd;border-radius:10px;margin:12px 0;">
+      <h3>Logs</h3>
+      <pre style="white-space:pre-wrap;max-height:280px;overflow:auto;"><%= File.read(flash[:log_file]).last(40_000) %></pre>
+    </div>
+  <% else %>
+    <div class="card" style="padding:16px;border:1px solid #ddd;border-radius:10px;margin:12px 0;">
+      <h3>Logs</h3>
+      <pre style="white-space:pre-wrap;">Click Scrape now to run the script.</pre>
+    </div>
+  <% end %>
+
+  <div style="margin-top:8px;">
+    <%= link_to "Go to Blog →", blog_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<style>
+  :root { --bg:#0b0f1a; --panel:#121826; --muted:#a3b1c6; --text:#e6eefb; --primary:#4f8cff; --success:#2fb344; --warning:#ffb020; --danger:#e03131; --border:#1d2636; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+  .container { max-width:1100px; margin:24px auto 64px; padding:0 16px; }
+  .header { text-align:center; margin-bottom:20px; }
+  .header h1 { margin:0; font-size:28px; letter-spacing:0.2px; }
+  .subtitle { margin:6px 0 0; color:var(--muted); font-size:14px; }
+
+  .alert { padding:12px 14px; border-radius:8px; margin:14px 0; border:1px solid var(--border); }
+  .alert-success { background:rgba(47,179,68,0.08); }
+  .alert-danger  { background:rgba(224,49,49,0.08); }
+
+  .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin:18px 0 10px; }
+  .card { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:16px; }
+  .kpi { text-align:center; }
+  .kpi-value { font-size:22px; font-weight:700; }
+  .kpi-value.success { color:var(--success); }
+  .kpi-value.warning { color:var(--warning); }
+  .kpi-value.danger  { color:var(--danger); }
+  .kpi-label { color:var(--muted); font-size:12px; margin-top:4px; letter-spacing:0.3px; }
+
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px; }
+  .help { color:var(--muted); font-size:13px; margin:6px 0 12px; }
+
+  .form-grid { display:grid; grid-template-columns:1fr auto; gap:10px; }
+  .input { width:100%; padding:10px 12px; background:#0e1421; border:1px solid var(--border); border-radius:10px; color:var(--text); }
+  .input::placeholder { color:#6f7d93; }
+
+  .btn { display:inline-block; border:1px solid transparent; border-radius:10px; padding:10px 14px; font-size:14px; cursor:pointer; transition:0.15s all ease; text-decoration:none; }
+  .btn:active { transform:translateY(1px); }
+  .btn-primary { background:var(--primary); color:white; }
+  .btn-secondary { background:#24304a; color:white; border-color:#2f3b56; }
+  .btn-success { background:var(--success); color:white; width:100%; padding:12px; font-weight:600; }
+  .btn-sm { padding:6px 10px; font-size:13px; border-radius:8px; }
+  .btn-danger-outline { color:#ff6b6b; border:1px solid #ff6b6b; background:transparent; }
+
+  .table-wrap { overflow-x:auto; margin-top:10px; }
+  .table { width:100%; border-collapse:collapse; }
+  .table th, .table td { padding:12px 10px; border-bottom:1px solid var(--border); text-align:left; white-space:nowrap; }
+  .table th { color:var(--muted); font-weight:600; font-size:12px; letter-spacing:0.3px; text-transform:uppercase; }
+  .actions { display:flex; gap:8px; justify-content:flex-end; }
+  .right { text-align:right; }
+
+  .badge { padding:4px 8px; border-radius:999px; font-weight:600; font-size:12px; }
+  .badge-pending   { background:rgba(255,176,32,0.18); color:#ffb020; }
+  .badge-calling   { background:rgba(79,140,255,0.18); color:#4f8cff; }
+  .badge-completed { background:rgba(47,179,68,0.18); color:#2fb344; }
+  .badge-failed    { background:rgba(224,49,49,0.18); color:#e03131; }
+
+  @media (max-width:900px) {
+    .cards { grid-template-columns:repeat(2,1fr); }
+    .grid-2 { grid-template-columns:1fr; }
+    .form-grid { grid-template-columns:1fr; }
+    .btn-success { width:100%; }
+  }
+</style>
