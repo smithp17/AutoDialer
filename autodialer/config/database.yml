@@ -2,22 +2,23 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  host: 127.0.0.1
-  port: 5432
 
 development:
   <<: *default
   database: autodialer_development
   username: postgres
   password: "1234"
+  host: 127.0.0.1
+  port: 5432
 
 test:
   <<: *default
   database: autodialer_test
   username: postgres
   password: "1234"
+  host: 127.0.0.1
+  port: 5432
 
 production:
   <<: *default
   url: <%= ENV["DATABASE_URL"] %>
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
